@@ -110,7 +110,7 @@ function Contact() {
                   </div>
                   <div>
                     <p className="text-gray-300 text-sm">Teléfono</p>
-                    <p className="text-white">+54 9 381 123-4567</p>
+                    <p className="text-white">+54 9 381 590-4990</p>
                   </div>
                 </div>
 
