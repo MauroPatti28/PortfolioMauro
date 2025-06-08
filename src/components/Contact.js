@@ -98,8 +98,8 @@ function Contact() {
                   </div>
                   <div>
                     <p className="text-gray-300 text-sm">Email</p>
-                    <a href="mailto:mauro@example.com" className="text-white hover:text-blue-400 transition-colors duration-300">
-                      mauro@example.com
+                    <a href="mailto:mauropatti59@gmail.com" className="text-white hover:text-blue-400 transition-colors duration-300">
+                      mauropatti59@gmailcom.com
                     </a>
                   </div>
                 </div>
