@@ -1,20 +1,20 @@
-import React, { useState, useRef } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, User, MessageSquare } from 'lucide-react';
-import emailjs from '@emailjs/browser';
+import React, { useState, useRef } from "react";
+import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, User, MessageSquare } from "lucide-react";
+import emailjs from "@emailjs/browser";
 
 function Contact() {
   const form = useRef();
   const [formData, setFormData] = useState({
-    user_name: '',
-    user_email: '',
-    message: ''
+    user_name: "",
+    user_email: "",
+    message: "",
   });
-  
+
   const [status, setStatus] = useState({
     loading: false,
     success: false,
     error: false,
-    message: ''
+    message: "",
   });
 
   // Variables de entorno
@@ -23,161 +23,94 @@ function Contact() {
   const PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
 
   const handleChange = (e) => {
-    // Limitar mensaje a 500 caracteres
-    if (e.target.name === 'message' && e.target.value.length > 500) return;
+    const { name, value } = e.target;
 
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    // Limitar mensaje a 500 caracteres
+    if (name === "message" && value.length > 500) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  const [lastSubmit, setLastSubmit] = useState(0);
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Validaciones básicas
     if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
       setStatus({
         loading: false,
         success: false,
         error: true,
-        message: 'Configuración de EmailJS incompleta. Contacta al administrador.'
-      });
-      return;
-    }
-    
-    // Rate limiting 30 segundos
-    const now = Date.now();
-    if (now - lastSubmit < 30000) {
-      setStatus({
-        loading: false,
-        success: false,
-        error: true,
-        message: 'Por favor espera 30 segundos antes de enviar otro mensaje'
+        message: "Configuración de EmailJS incompleta.",
       });
       return;
     }
 
-    // Validaciones
     if (!formData.user_name.trim()) {
       setStatus({
         loading: false,
         success: false,
         error: true,
-        message: 'Por favor ingresa tu nombre'
+        message: "Por favor ingresa tu nombre.",
       });
       return;
     }
-
-    if (!formData.user_email.trim()) {
+    if (!formData.user_email.trim() || !validateEmail(formData.user_email)) {
       setStatus({
         loading: false,
         success: false,
         error: true,
-        message: 'Por favor ingresa tu email'
+        message: "Por favor ingresa un email válido.",
       });
       return;
     }
-
-    if (!validateEmail(formData.user_email)) {
+    if (!formData.message.trim() || formData.message.trim().length < 10) {
       setStatus({
         loading: false,
         success: false,
         error: true,
-        message: 'Por favor ingresa un email válido'
+        message: "El mensaje debe tener al menos 10 caracteres.",
       });
       return;
     }
 
-    if (!formData.message.trim()) {
-      setStatus({
-        loading: false,
-        success: false,
-        error: true,
-        message: 'Por favor escribe tu mensaje'
-      });
-      return;
-    }
+    setStatus({ loading: true, success: false, error: false, message: "" });
 
-    if (formData.message.trim().length < 10) {
-      setStatus({
-        loading: false,
-        success: false,
-        error: true,
-        message: 'El mensaje debe tener al menos 10 caracteres'
-      });
-      return;
-    }
-
-    setStatus({ loading: true, success: false, error: false, message: '' });
-
-    try {
-      // Agregar input oculto con timestamp
-      const formElement = form.current;
-      const timeInput = document.createElement('input');
-      timeInput.type = 'hidden';
-      timeInput.name = 'current_time';
-      timeInput.value = new Date().toLocaleString('es-AR', {
-        timeZone: 'America/Argentina/Tucuman',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-      formElement.appendChild(timeInput);
-
-      const result = await emailjs.sendForm(
-        SERVICE_ID,
-        TEMPLATE_ID,
-        formElement,
-        PUBLIC_KEY
-      );
-
-      console.log('✅ Email enviado exitosamente:', result.text);
-      
-      setStatus({
-        loading: false,
-        success: true,
-        error: false,
-        message: '¡Mensaje enviado exitosamente! Te responderé dentro de 24 horas.'
-      });
-      
-      setFormData({ user_name: '', user_email: '', message: '' });
-      setLastSubmit(now);
-      
-      // Eliminar input temporal
-      formElement.removeChild(timeInput);
-      
-    } catch (error) {
-      console.error('❌ Error al enviar email:', error);
-      
-      let errorMessage = 'Error al enviar el mensaje. Por favor intenta de nuevo.';
-      
-      if (error.text) {
-        if (error.text.includes('Invalid')) {
-          errorMessage = 'Configuración de EmailJS inválida. Contacta al administrador.';
-        } else if (error.text.includes('Limit')) {
-          errorMessage = 'Se ha alcanzado el límite de envíos. Intenta más tarde.';
+    emailjs
+      .sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY)
+      .then(
+        (result) => {
+          setStatus({
+            loading: false,
+            success: true,
+            error: false,
+            message: "¡Mensaje enviado exitosamente! Responderé dentro de 24 horas.",
+          });
+          setFormData({ user_name: "", user_email: "", message: "" });
+        },
+        (error) => {
+          setStatus({
+            loading: false,
+            success: false,
+            error: true,
+            message: "Error al enviar el mensaje. Intenta de nuevo más tarde.",
+          });
+          console.error("Error EmailJS:", error);
         }
-      }
-      
-      setStatus({
-        loading: false,
-        success: false,
-        error: true,
-        message: errorMessage
-      });
-    }
+      );
   };
 
   return (
-    <section id="contacto" className="py-20 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+    <section
+      id="contacto"
+      className="py-20 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"
+    >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-white mb-4">¿Trabajamos Juntos?</h2>
@@ -189,8 +122,7 @@ function Contact() {
 
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 md:p-12 shadow-2xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            {/* Información de Contacto */}
+            {/* Info Contacto */}
             <div>
               <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
@@ -198,7 +130,7 @@ function Contact() {
                 </div>
                 Información de Contacto
               </h3>
-              
+
               <div className="space-y-6">
                 <div className="flex items-center gap-4 group hover:bg-white/5 p-3 rounded-lg transition-all duration-300">
                   <div className="w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -206,23 +138,23 @@ function Contact() {
                   </div>
                   <div>
                     <p className="text-gray-300 text-sm font-medium">Email</p>
-                    <a 
-                      href="mailto:pattimauro48@gmail.com" 
+                    <a
+                      href="mailto:pattimauro48@gmail.com"
                       className="text-white hover:text-blue-400 transition-colors duration-300 text-lg"
                     >
                       pattimauro48@gmail.com
                     </a>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-4 group hover:bg-white/5 p-3 rounded-lg transition-all duration-300">
                   <div className="w-14 h-14 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <Phone className="w-7 h-7 text-white" />
                   </div>
                   <div>
                     <p className="text-gray-300 text-sm font-medium">Teléfono</p>
-                    <a 
-                      href="tel:+5493815904990" 
+                    <a
+                      href="tel:+5493815904990"
                       className="text-white hover:text-green-400 transition-colors duration-300 text-lg"
                     >
                       +54 9 381 590-4990
@@ -249,7 +181,7 @@ function Contact() {
               </div>
             </div>
 
-            {/* Formulario de Contacto */}
+            {/* Formulario */}
             <form ref={form} onSubmit={handleSubmit} className="flex flex-col gap-6 text-white">
               <div className="flex flex-col">
                 <label htmlFor="user_name" className="mb-2 font-semibold flex items-center gap-2">
@@ -320,7 +252,9 @@ function Contact() {
                 disabled={status.loading}
                 className="mt-4 inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 font-semibold text-white shadow-md hover:brightness-110 transition"
               >
-                {status.loading ? 'Enviando...' : (
+                {status.loading ? (
+                  "Enviando..."
+                ) : (
                   <>
                     <Send className="w-5 h-5" />
                     Enviar mensaje
