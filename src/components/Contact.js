@@ -99,7 +99,7 @@ function Contact() {
                   <div>
                     <p className="text-gray-300 text-sm">Email</p>
                     <a href="mailto:mauro@example.com" className="text-white hover:text-blue-400 transition-colors duration-300">
-                      mauro@example.com
+                      mauropatti59@gmail.com
                     </a>
                   </div>
                 </div>
@@ -210,3 +210,4 @@ function Contact() {
 }
 
 export default Contact;
+
