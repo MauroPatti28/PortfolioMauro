@@ -17,12 +17,15 @@ function Contact() {
     message: ''
   });
 
-  // ✅ TUS CONFIGURACIONES (no cambiar)
-  const SERVICE_ID = 'service_phbs8n8';
-  const TEMPLATE_ID = 'template_0inozq9';
-  const PUBLIC_KEY = 'XZqftBY_dgjMUZt7b';
+  // Variables de entorno
+  const SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
+  const TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
+  const PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
 
   const handleChange = (e) => {
+    // Limitar mensaje a 500 caracteres
+    if (e.target.name === 'message' && e.target.value.length > 500) return;
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -37,8 +40,18 @@ function Contact() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+      setStatus({
+        loading: false,
+        success: false,
+        error: true,
+        message: 'Configuración de EmailJS incompleta. Contacta al administrador.'
+      });
+      return;
+    }
     
-    // Rate limiting
+    // Rate limiting 30 segundos
     const now = Date.now();
     if (now - lastSubmit < 30000) {
       setStatus({
@@ -104,7 +117,7 @@ function Contact() {
     setStatus({ loading: true, success: false, error: false, message: '' });
 
     try {
-      // ✅ AGREGAR TIMESTAMP automáticamente
+      // Agregar input oculto con timestamp
       const formElement = form.current;
       const timeInput = document.createElement('input');
       timeInput.type = 'hidden';
@@ -123,9 +136,7 @@ function Contact() {
         SERVICE_ID,
         TEMPLATE_ID,
         formElement,
-        {
-          publicKey: PUBLIC_KEY,
-        }
+        PUBLIC_KEY
       );
 
       console.log('✅ Email enviado exitosamente:', result.text);
@@ -137,16 +148,10 @@ function Contact() {
         message: '¡Mensaje enviado exitosamente! Te responderé dentro de 24 horas.'
       });
       
-      // Limpiar formulario
-      setFormData({ 
-        user_name: '', 
-        user_email: '', 
-        message: '' 
-      });
-      
+      setFormData({ user_name: '', user_email: '', message: '' });
       setLastSubmit(now);
       
-      // Remover el input temporal
+      // Eliminar input temporal
       formElement.removeChild(timeInput);
       
     } catch (error) {
@@ -245,107 +250,86 @@ function Contact() {
             </div>
 
             {/* Formulario de Contacto */}
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                  <MessageSquare className="w-4 h-4 text-white" />
-                </div>
-                Envíame un Mensaje
-              </h3>
-              
-              {/* Mensaje de Estado */}
-              {(status.success || status.error) && (
-                <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 border ${
-                  status.success 
-                    ? 'bg-green-500/20 border-green-500/30 text-green-300' 
-                    : 'bg-red-500/20 border-red-500/30 text-red-300'
-                }`}>
-                  {status.success ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-                  <p className="text-sm">{status.message}</p>
+            <form ref={form} onSubmit={handleSubmit} className="flex flex-col gap-6 text-white">
+              <div className="flex flex-col">
+                <label htmlFor="user_name" className="mb-2 font-semibold flex items-center gap-2">
+                  <User className="w-5 h-5" /> Nombre
+                </label>
+                <input
+                  id="user_name"
+                  name="user_name"
+                  type="text"
+                  placeholder="Tu nombre completo"
+                  value={formData.user_name}
+                  onChange={handleChange}
+                  required
+                  className="rounded-md bg-gray-800 px-4 py-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label htmlFor="user_email" className="mb-2 font-semibold flex items-center gap-2">
+                  <Mail className="w-5 h-5" /> Email
+                </label>
+                <input
+                  id="user_email"
+                  name="user_email"
+                  type="email"
+                  placeholder="tuemail@ejemplo.com"
+                  value={formData.user_email}
+                  onChange={handleChange}
+                  required
+                  className="rounded-md bg-gray-800 px-4 py-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label htmlFor="message" className="mb-2 font-semibold flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5" /> Mensaje
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  placeholder="Escribe tu mensaje aquí..."
+                  value={formData.message}
+                  onChange={handleChange}
+                  rows={5}
+                  maxLength={500}
+                  required
+                  className="resize-none rounded-md bg-gray-800 px-4 py-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <small className="text-gray-400 text-right">{formData.message.length} / 500</small>
+              </div>
+
+              {status.error && (
+                <div className="text-red-400 flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5" />
+                  <p>{status.message}</p>
                 </div>
               )}
 
-              {/* ✅ FORMULARIO CON NOMBRES CORRECTOS */}
-              <form ref={form} onSubmit={handleSubmit} className="space-y-5">
-                <div className="relative">
-                  <User className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-                  <input 
-                    type="text" 
-                    name="user_name"
-                    placeholder="Tu nombre completo *" 
-                    value={formData.user_name}
-                    onChange={handleChange}
-                    className="w-full pl-12 pr-4 py-3.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:border-blue-400 focus:bg-white/20 focus:ring-2 focus:ring-blue-400/20 transition-all duration-300"
-                    disabled={status.loading}
-                    required
-                  />
+              {status.success && (
+                <div className="text-green-400 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  <p>{status.message}</p>
                 </div>
-                
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-                  <input 
-                    type="email" 
-                    name="user_email"
-                    placeholder="tu@email.com *" 
-                    value={formData.user_email}
-                    onChange={handleChange}
-                    className="w-full pl-12 pr-4 py-3.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:border-blue-400 focus:bg-white/20 focus:ring-2 focus:ring-blue-400/20 transition-all duration-300"
-                    disabled={status.loading}
-                    required
-                  />
-                </div>
-                
-                <div className="relative">
-                  <MessageSquare className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-                  <textarea 
-                    name="message"
-                    rows="5" 
-                    placeholder="Cuéntame sobre tu proyecto o consulta... *" 
-                    value={formData.message}
-                    onChange={handleChange}
-                    className="w-full pl-12 pr-4 py-3.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:border-blue-400 focus:bg-white/20 focus:ring-2 focus:ring-blue-400/20 transition-all duration-300 resize-none"
-                    disabled={status.loading}
-                    required
-                    minLength="10"
-                  />
-                  <div className="absolute bottom-3 right-3 text-xs text-gray-400">
-                    {formData.message.length}/500
-                  </div>
-                </div>
-                
-                <button 
-                  type="submit"
-                  disabled={status.loading}
-                  className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 transform hover:scale-105 hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
-                >
-                  {status.loading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Enviando mensaje...
-                    </>
-                  ) : (
-                    <>
-                      <Send size={18} />
-                      Enviar Mensaje
-                    </>
-                  )}
-                </button>
-              </form>
-              
-              <div className="mt-4 flex items-center justify-between text-xs">
-                <p className="text-gray-400">
-                  * Campos obligatorios
-                </p>
-                <p className="text-gray-500">
-                  Powered by EmailJS
-                </p>
-              </div>
-            </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={status.loading}
+                className="mt-4 inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 font-semibold text-white shadow-md hover:brightness-110 transition"
+              >
+                {status.loading ? 'Enviando...' : (
+                  <>
+                    <Send className="w-5 h-5" />
+                    Enviar mensaje
+                  </>
+                )}
+              </button>
+            </form>
           </div>
         </div>
-
-        {/* Sección adicional */}
-        
       </div>
     </section>
   );
