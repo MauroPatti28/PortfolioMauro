@@ -29,7 +29,7 @@ function Navbar() {
             <h1 className={`text-2xl font-bold transition-colors duration-300 ${
               isScrolled ? 'text-gray-900' : 'text-white'
             }`}>
-              Mauro<span className="text-blue-500">.</span>
+              Mauro Patti<span className="text-blue-500">.</span>
             </h1>
           </div>
           

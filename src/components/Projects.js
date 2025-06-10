@@ -9,7 +9,7 @@ function Projects() {
       id: 1,
       title: "aplicacion web para un Bar",
       description: "API REST completa para una plataforma de comercio electrónico con autenticación JWT, pagos y gestión de inventario.",
-      tech: ["Node.js", "Express", "MongoDB", "Multer"],
+      tech: ["Node.js", "Express", "MongoDB", "Multer","Jwt","bcrypt"],
       image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=500&h=300&fit=crop",
       github: "https://github.com/MauroPatti28/tpfinal.git",
       demo: "https://ecommerce-api-demo.herokuapp.com"
@@ -18,7 +18,7 @@ function Projects() {
       id: 2,
       title: "aplicacion web Ecomerce",
       description: "Aplicación de chat con WebSockets, salas privadas y notificaciones push usando Socket.io.",
-      tech: ["Node.js", "Jwt", "MongoDB", "Stripe"],
+      tech: ["Node.js", "Jwt", "MongoDB","Webhook","Stripe","Express","multer","bcrypt"],
   image: "https://images.unsplash.com/photo-1542831371-d531d36971e6?w=500&h=300&fit=crop", // nueva imagen e-commerce
       github: "https://github.com/mauro/realtime-chat",
       demo: "https://chat-app-demo.netlify.app"
@@ -31,6 +31,15 @@ function Projects() {
   image: "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=500&h=300&fit=crop", // imagen de gimnasio
       github: "https://github.com/mauro/analytics-dashboard",
       demo: "https://analytics-dashboard-demo.vercel.app"
+    },
+    {
+      id: 4,
+      title: "Chat con ia",
+      description: "Panel de control para visualización de datos con gráficos interactivos y reportes personalizables.",
+      tech: ["Node.js", "webSocket.io", "grok", "Chart.js"],
+  image: "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=500&h=300&fit=crop", // imagen de gimnasio
+      github: "https://github.com/MauroPatti28/chat.git",
+      demo: "https://chat-delta-roan.vercel.app/"
     }
   ]);
 

@@ -10,14 +10,14 @@ function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
             <h3 className="text-2xl font-bold">
-              Mauro<span className="text-blue-500">.</span>
+              Mauro Patti<span className="text-blue-500">.</span>
             </h3>
             <p className="text-gray-400 mt-1">Desarrollador Backend</p>
           </div>
           
           <div className="flex items-center space-x-6">
             <a 
-              href="https://github.com/mauro" 
+              href="https://github.com/MauroPatti28" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-white transition-colors duration-300"
@@ -25,7 +25,7 @@ function Footer() {
               <Github size={24} />
             </a>
             <a 
-              href="mailto:mauro@example.com"
+              href="mailto:mauropatti59@gmail.com"
               className="text-gray-400 hover:text-white transition-colors duration-300"
             >
               <Mail size={24} />
