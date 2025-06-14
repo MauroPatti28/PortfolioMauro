@@ -23,17 +23,9 @@ function Projects() {
       github: "https://github.com/mauro/realtime-chat",
       demo: "https://chat-app-demo.netlify.app"
     },
+    
     {
       id: 3,
-      title: "aplicacion Web Para gimnasio",
-      description: "Panel de control para visualización de datos con gráficos interactivos y reportes personalizables.",
-      tech: ["Node.js", "Express", "MongoDB", "Chart.js"],
-  image: "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=500&h=300&fit=crop", // imagen de gimnasio
-      github: "https://github.com/mauro/analytics-dashboard",
-      demo: "https://analytics-dashboard-demo.vercel.app"
-    },
-    {
-      id: 4,
       title: "Chat con ia",
       description: "Panel de control para visualización de datos con gráficos interactivos y reportes personalizables.",
       tech: ["Node.js", "webSocket.io", "grok", "Chart.js"],
