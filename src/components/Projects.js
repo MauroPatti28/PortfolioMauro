@@ -39,7 +39,7 @@ function Projects() {
       tech: ["Node.js", "webSocket.io", "grok", "Chart.js"],
   image: "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=500&h=300&fit=crop", // imagen de gimnasio
       github: "https://github.com/MauroPatti28/chat.git",
-      demo: "https://chat-delta-roan.vercel.app/"
+      demo: "https://chat2-fawn.vercel.app/"
     }
   ]);
 
